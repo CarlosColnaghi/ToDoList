@@ -1,5 +1,6 @@
 package br.edu.ifsp.scl.sdm.todolist.controller
 
+import androidx.fragment.app.Fragment
 import androidx.room.Room
 import br.edu.ifsp.scl.sdm.todolist.model.database.ToDoListDatabase
 import br.edu.ifsp.scl.sdm.todolist.model.database.ToDoListDatabase.Companion.TO_DO_LIST_DATABASE
@@ -9,9 +10,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MainController(private val mainFragment: MainFragment) {
+class TaskPresenter(private val taskView: TaskView) {
     private val taskDaoImpl = Room.databaseBuilder(
-        mainFragment.requireContext(),
+        (taskView as Fragment).requireContext(),
         ToDoListDatabase::class.java,
         TO_DO_LIST_DATABASE
     ).build().getTaskDao()
@@ -25,7 +26,7 @@ class MainController(private val mainFragment: MainFragment) {
     fun getTasks(){
         CoroutineScope(Dispatchers.IO).launch {
             val tasks = taskDaoImpl.retrieveTasks()
-            mainFragment.updateTaskList(tasks)
+            taskView.updateTaskList(tasks)
         }
     }
 
@@ -39,5 +40,9 @@ class MainController(private val mainFragment: MainFragment) {
         CoroutineScope(Dispatchers.IO).launch {
             taskDaoImpl.deleteTask(task)
         }
+    }
+
+    interface TaskView {
+        fun updateTaskList(tasks: List<Task>)
     }
 }
